@@ -42,7 +42,10 @@ pipeline {
                   --format HTML \
                   --out /src/reports \
                   --noupdate \
-                  --enableExperimental
+                  --enableExperimental \
+                  --disableArchive \
+                  --disableJar \
+                  --disableBundleAudit
 
                 )
               '''
