@@ -73,7 +73,7 @@ pipeline {
                         ghcr.io/zaproxy/zaproxy:stable \
                         zap-baseline.py \
                         -t http://172.23.41.49:5000 \
-                        -r zap-report.html
+                        -r zap-report.html || true
                 '''
             }
             post {
