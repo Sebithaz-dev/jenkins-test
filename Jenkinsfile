@@ -23,22 +23,26 @@ pipeline {
 
         stage('Dependency Check') {
             steps {
-                echo "🔍 Ejecutando OWASP Dependency-Check..."
+                echo "🔍 Ejecutando OWASP Dependency-Check (en Docker)..."
                 sh '''
-                dependency-check.sh \
-                    --project $PROJECT_NAME \
-                    --scan . \
-                    --format HTML \
-                    --out reports/ \
-                    --enableExperimental
+                docker run --rm \
+                  -v $(pwd):/src \
+                  owasp/dependency-check:latest \
+                  --project "$PROJECT_NAME" \
+                  --scan /src \
+                  --format "HTML" \
+                  --out /src/reports \
+                  --enableExperimental
+                '''
                 '''
             }
             post {
                 success {
-                    echo "✅ Reporte de dependencias generado en reports/dependency-check-report.html"
+                    echo "✅ Reporte generado en reports/dependency-check-report.html"
                 }
             }
         }
+
 
         stage('SonarQube Analysis') {
             steps {
