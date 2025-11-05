@@ -64,14 +64,15 @@ pipeline {
             steps {
                 echo "🕵️ Ejecutando escaneo dinámico con OWASP ZAP..."
                 // Si ZAP corre en Docker en la misma red que Jenkins
-                sh '''
+                sh """
                 docker run --rm --network jenkins-net \
-                    -v $(pwd):/zap/wrk/:rw \
+                    -v \$(pwd):/zap/wrk/:rw \
                     ghcr.io/zaproxy/zaproxy:stable \
                     zap-baseline.py \
                     -t $TARGET_URL \
                     -r zap-report.html
-                '''
+                """
+
             }
             post {
                 success {
