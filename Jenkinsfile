@@ -22,25 +22,21 @@ pipeline {
                     sh '''
                         mkdir -p $(pwd)/reports
                         chmod -R 777 $(pwd)/reports
-            
-                        # Copiar el código fuente del workspace al contenedor
-                        docker cp . dependency-check:/src
-            
-                        # Ejecutar el análisis dentro del contenedor permanente
+                        
+                        echo "⚙️ Ejecutando análisis con volumen persistente..."
                         docker run --rm --user root \
-                          -v dependency-check-data:/usr/share/dependency-check/data \
-                          -v $(pwd):/src \
-                          -v /home/seb/dependency-reports:/reports \
-                          owasp/dependency-check:10.0.2 \
-                          --project pipeline-sec \
-                          --scan /src \
-                          --format HTML \
-                          --out /reports \
-                          --enableExperimental || true
-
+                            -v dependency-check-data:/usr/share/dependency-check/data \
+                            -v $(pwd):/src \
+                            -v /home/seb/dependency-reports:/reports \
+                            owasp/dependency-check:10.0.2 \
+                            --project pipeline-sec \
+                            --scan /src \
+                            --format HTML \
+                            --out /reports \
+                            --enableExperimental || true
             
-                        # Copiar el reporte generado desde el contenedor al workspace de Jenkins
-                        docker cp dependency-check:/reports/dependency-check-report.html $(pwd)/reports/ || true
+                        echo "📄 Copiando reporte desde el host al workspace de Jenkins..."
+                        cp /home/seb/dependency-reports/dependency-check-report.html $(pwd)/reports/ || true
                     '''
                 }
             }
