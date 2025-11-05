@@ -34,15 +34,15 @@ pipeline {
               echo "🔍 Ejecutando OWASP Dependency-Check (con API Key y cache persistente)..."
         
               docker run --rm \
-                  -v "$PWD":/src \
                   -v dependency-check-data:/usr/share/dependency-check/data \
                   owasp/dependency-check:10.0.2 \
-                  --project pipeline-sec \
+                  --noupdate \
+                  --project test \
                   --scan /src \
                   --format XML \
                   --out /src/reports \
-                  --noupdate \
                   --enableExperimental
+                
 
 
 
