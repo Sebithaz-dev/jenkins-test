@@ -96,11 +96,22 @@ pipeline {
         always {
             echo "🧾 Guardando reportes de análisis..."
             sh '''
+                echo "📦 Verificando ubicación de reportes..."
+                ls -R $(pwd)
                 mkdir -p reports
-                if [ -f zap-report.html ]; then cp zap-report.html reports/; fi
-                if [ -f reports/dependency-check-report.html ]; then echo "OK"; fi
+                # Copiar el reporte de ZAP si existe
+                if [ -f zap-report.html ]; then
+                    echo "📄 Copiando zap-report.html a reports/"
+                    cp zap-report.html reports/
+                fi
+                # Confirmar que dependency-check-report.html exista
+                if [ -f reports/dependency-check-report.html ]; then
+                    echo "✅ dependency-check-report.html encontrado"
+                else
+                    echo "⚠️ dependency-check-report.html no encontrado"
+                fi
             '''
-            archiveArtifacts artifacts: 'reports/**/*.html', fingerprint: true
+            archiveArtifacts artifacts: '**/*.html', fingerprint: true
         }
     }
 }
