@@ -21,20 +21,40 @@ pipeline {
             }
         }
 
-        stage('Dependency Check') {
+        sstage('Dependency Check') {
           steps {
             withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
-              sh """
+              sh '''
               mkdir -p reports
+        
+              # Crear volumen persistente para cachear la base de datos NVD
+              docker volume create dependency-check-data || true
+        
+              echo "🔍 Ejecutando OWASP Dependency-Check con base de datos persistente..."
               docker run --rm \
-                -v \$(pwd):/src \
-                owasp/dependency-check:latest \
+                -v $(pwd):/src \
+                -v dependency-check-data:/usr/share/dependency-check/data \
+                owasp/dependency-check:8.4.0 \
                 --project "$PROJECT_NAME" \
                 --scan /src \
                 --format HTML \
                 --out /src/reports \
-                --nvdApiKey $NVD_API_KEY
-              """
+                --nvdApiKey ${NVD_API_KEY} \
+                --enableExperimental || \
+              (
+                echo "⚠️ Falla al actualizar NVD, ejecutando con base existente (--noupdate)..."
+                docker run --rm \
+                  -v $(pwd):/src \
+                  -v dependency-check-data:/usr/share/dependency-check/data \
+                  owasp/dependency-check:8.4.0 \
+                  --project "$PROJECT_NAME" \
+                  --scan /src \
+                  --format HTML \
+                  --out /src/reports \
+                  --noupdate \
+                  --enableExperimental
+              )
+              '''
             }
           }
           post {
