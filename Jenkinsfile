@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        sonarQube 'SonarQubeScanner'
+    }
+    
     environment {
         // Nombre del proyecto para SonarQube y Dependency-Check
         PROJECT_NAME = "pipeline-sec"
