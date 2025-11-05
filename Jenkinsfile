@@ -23,21 +23,39 @@ pipeline {
 
         stage('Dependency Check') {
           steps {
-            sh '''
-            mkdir -p reports
-            docker volume create dependency-check-data || true
+            withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+              sh '''
+              mkdir -p reports
         
-            echo "🔍 Ejecutando OWASP Dependency-Check (sin API Key, modo caché)..."
-            docker run --rm \
-              -v $(pwd):/src \
-              -v dependency-check-data:/usr/share/dependency-check/data \
-              owasp/dependency-check:8.4.0 \
-              --project "$PROJECT_NAME" \
-              --scan /src \
-              --format HTML \
-              --out /src/reports \
-              --enableExperimental
-            '''
+              # Crear volumen persistente para cachear la base de datos NVD
+              docker volume create dependency-check-data || true
+        
+              echo "🔍 Ejecutando OWASP Dependency-Check (con API Key y cache persistente)..."
+        
+              docker run --rm \
+                -v $(pwd):/src \
+                -v dependency-check-data:/usr/share/dependency-check/data \
+                owasp/dependency-check:12.1.0 \
+                --project "$PROJECT_NAME" \
+                --scan /src \
+                --format HTML \
+                --out /src/reports \
+                --nvdApiKey ${NVD_API_KEY} \
+                --enableExperimental || (
+                  echo "⚠️ Error en la actualización, reintentando con --noupdate"
+                  docker run --rm \
+                    -v $(pwd):/src \
+                    -v dependency-check-data:/usr/share/dependency-check/data \
+                    owasp/dependency-check:12.1.0 \
+                    --project "$PROJECT_NAME" \
+                    --scan /src \
+                    --format HTML \
+                    --out /src/reports \
+                    --noupdate \
+                    --enableExperimental
+                )
+              '''
+            }
           }
           post {
             success {
@@ -45,6 +63,7 @@ pipeline {
             }
           }
         }
+
 
 
 
