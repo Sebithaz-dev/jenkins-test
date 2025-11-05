@@ -24,7 +24,7 @@ pipeline {
                         chmod -R 777 reports
                         docker volume create dependency-check-data || true
                         echo "🔍 Ejecutando OWASP Dependency-Check..."
-                        docker run --rm \
+                        docker run --rm --user root \
                             -v "$PWD":/src \
                             -v dependency-check-data:/usr/share/dependency-check/data \
                             owasp/dependency-check:8.4.0 \
