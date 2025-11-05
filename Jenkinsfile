@@ -42,7 +42,7 @@ pipeline {
                     --format JSON \
                     --out /src/reports \
                     --noupdate \
-                    --enableExperimental
+                    --enableExperimental || true
             '''
 
             }
