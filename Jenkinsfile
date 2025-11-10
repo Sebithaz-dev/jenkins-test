@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_NAME = "pipeline-test1"
+        PROJECT_NAME = "pipeline-test"
         SONARQUBE_URL = "http://sonarqube:9000"
-        SONARQUBE_TOKEN = "sqa_27917f2e0c9da704271525e5d90beb7f20d14d17"
+        SONARQUBE_TOKEN = "sqa_7115cfbc14d04086aa25b83e470a8a85d8d418aa"
         TARGET_URL = "http://172.23.41.49:5000"
     }
 
